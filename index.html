@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Building Control</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="header-title" data-text="app_title">Smart Building</h1>
+                <div class="header-actions">
+                    <button class="lang-toggle" onclick="toggleLanguage()">
+                        <span class="lang-flag" id="currentLang">🇬🇧</span>
+                    </button>
+                    <div class="header-info">
+                        <span class="current-time" id="current-time"></span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section class="section active" id="dashboard">
+                <div class="section-header">
+                    <h2 data-text="dashboard">Dashboard</h2>
+                </div>
+
+                <!-- Current Status Cards -->
+                <div class="status-grid">
+                    <div class="status-card temperature-card">
+                        <div class="status-icon">🌡️</div>
+                        <div class="status-content">
+                            <h3 data-text="indoor_temperature">Indoor Temperature</h3>
+                            <div class="status-value">21.5°C</div>
+                            <div class="status-target"><span data-text="target">Target</span>: 22.0°C</div>
+                        </div>
+                    </div>
+
+                    <div class="status-card energy-card">
+                        <div class="status-icon">⚡</div>
+                        <div class="status-content">
+                            <h3 data-text="energy_usage">Today's Usage</h3>
+                            <div class="status-value">12.4 kWh</div>
+                            <div class="status-change positive">-18% <span data-text="vs_yesterday">vs yesterday</span></div>
+                        </div>
+                    </div>
+
+                    <div class="status-card savings-card">
+                        <div class="status-icon">💰</div>
+                        <div class="status-content">
+                            <h3 data-text="daily_savings">Daily Savings</h3>
+                            <div class="status-value">62,90 kr</div>
+                            <div class="status-change positive">+28,50 kr <span data-text="vs_yesterday">vs yesterday</span></div>
+                        </div>
+                    </div>
+
+                    <div class="status-card comfort-card">
+                        <div class="status-icon">😊</div>
+                        <div class="status-content">
+                            <h3>Komfort / Comfort</h3>
+                            <div class="status-value">9.4/10</div>
+                            <div class="status-change positive">Utmerket / Excellent</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PCM Floor Status -->
+                <div class="card pcm-status">
+                    <div class="card__body">
+                        <h3 data-text="pcm_floor">PCM Floor System</h3>
+                        <div class="pcm-info">
+                            <div class="pcm-temp">
+                                <span class="pcm-label" data-text="indoor_temperature">Current Temperature</span>
+                                <span class="pcm-value">23.1°C</span>
+                            </div>
+                            <div class="pcm-efficiency">
+                                <span class="pcm-label" data-text="efficiency">Efficiency</span>
+                                <span class="pcm-value">87%</span>
+                            </div>
+                            <div class="pcm-next">
+                                <span class="pcm-label">Neste optimale oppvarming / Next Optimal Heating</span>
+                                <span class="pcm-value">02:30</span>
+                            </div>
+                        </div>
+                        <div class="pcm-phase">
+                            <span class="status status--success">Optimal ladingsperiode / Optimal Charging Phase</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Energy Monitor Section -->
+            <section class="section" id="energy">
+                <div class="section-header">
+                    <h2 data-text="energy_monitor">Energy Monitor</h2>
+                </div>
+
+                <!-- Electricity Pricing -->
+                <div class="card pricing-card">
+                    <div class="card__body">
+                        <h3>Strømpriser / Electricity Pricing</h3>
+                        <div class="pricing-info">
+                            <div class="price-current">
+                                <span class="price-label" data-text="current_rate">Current Rate</span>
+                                <span class="price-value">2,45 kr/kWh</span>
+                            </div>
+                            <div class="price-next">
+                                <span class="price-label" data-text="next_hour">Next Hour</span>
+                                <span class="price-value cheaper">2,12 kr/kWh</span>
+                            </div>
+                        </div>
+                        <div class="price-recommendation">
+                            💡 Vent 1 time for 13% billigere strøm / Wait 1 hour for 13% cheaper electricity
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Energy Chart -->
+                <div class="card chart-card">
+                    <div class="card__body">
+                        <h3>Ukentlig energiforbruk / Weekly Energy Consumption</h3>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="energyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Heating Control Section -->
+            <section class="section" id="heating">
+                <div class="section-header">
+                    <h2 data-text="heating_control">Heating Control</h2>
+                </div>
+
+                <!-- Temperature Control -->
+                <div class="card temperature-control">
+                    <div class="card__body">
+                        <h3>Temperaturinnstillinger / Temperature Settings</h3>
+                        <div class="temp-control">
+                            <button class="temp-btn" onclick="window.adjustTemperature(-1)">-</button>
+                            <div class="temp-display">
+                                <span class="temp-value" id="targetTemp">22</span>
+                                <span class="temp-unit">°C</span>
+                            </div>
+                            <button class="temp-btn" onclick="window.adjustTemperature(1)">+</button>
+                        </div>
+                        <div class="temp-modes">
+                            <button class="mode-btn active" data-mode="comfort">Komfort / Comfort</button>
+                            <button class="mode-btn" data-mode="eco">Øko / Eco</button>
+                            <button class="mode-btn" data-mode="away">Borte / Away</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Schedule -->
+                <div class="card schedule-card">
+                    <div class="card__body">
+                        <h3>Daglig timeplan / Daily Schedule</h3>
+                        <div class="schedule-grid">
+                            <div class="schedule-item">
+                                <span class="schedule-time">07:00</span>
+                                <span class="schedule-action">Våkne opp / Wake Up - 22°C</span>
+                            </div>
+                            <div class="schedule-item">
+                                <span class="schedule-time">08:30</span>
+                                <span class="schedule-action">Dra hjemmefra / Leave Home - 19°C</span>
+                            </div>
+                            <div class="schedule-item">
+                                <span class="schedule-time">17:00</span>
+                                <span class="schedule-action">Komme hjem / Return Home - 22°C</span>
+                            </div>
+                            <div class="schedule-item">
+                                <span class="schedule-time">23:00</span>
+                                <span class="schedule-action">Sove / Sleep - 20°C</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recommendations Section -->
+            <section class="section" id="recommendations">
+                <div class="section-header">
+                    <h2 data-text="recommendations">Recommendations</h2>
+                </div>
+
+                <div class="recommendations-list">
+                    <div class="recommendation-card high-savings">
+                        <div class="rec-icon">🕐</div>
+                        <div class="rec-content">
+                            <h4>Optimal oppvarmingsplan / Optimal Heating Schedule</h4>
+                            <p class="rec-message" data-message-en="Pre-heat floor at 2:30 AM when electricity is 35% cheaper" data-message-no="Forvarm gulvet kl. 02:30 når strømmen er 35% billigere">Pre-heat floor at 2:30 AM when electricity is 35% cheaper</p>
+                            <div class="rec-savings">Spar 28,50 kr daglig / Save 28.50 kr daily</div>
+                            <div class="rec-impact">
+                                <span class="impact-label">Komfortpåvirkning / Comfort Impact:</span>
+                                <span class="impact-value low">Lav / Low</span>
+                            </div>
+                        </div>
+                        <button class="rec-action btn btn--primary btn--sm">Bruk / Apply</button>
+                    </div>
+
+                    <div class="recommendation-card">
+                        <div class="rec-icon">🌡️</div>
+                        <div class="rec-content">
+                            <h4>Temperaturoptimalisering / Temperature Optimization</h4>
+                            <p class="rec-message" data-message-en="Lower temperature by 1°C during away hours" data-message-no="Senk temperaturen med 1°C når du er borte">Lower temperature by 1°C during away hours</p>
+                            <div class="rec-savings">Spar 15,80 kr daglig / Save 15.80 kr daily</div>
+                            <div class="rec-impact">
+                                <span class="impact-label">Komfortpåvirkning / Comfort Impact:</span>
+                                <span class="impact-value none">Ingen / None</span>
+                            </div>
+                        </div>
+                        <button class="rec-action btn btn--primary btn--sm">Bruk / Apply</button>
+                    </div>
+
+                    <div class="recommendation-card">
+                        <div class="rec-icon">🌤️</div>
+                        <div class="rec-content">
+                            <h4>Værbasert timeplan / Weather-Based Schedule</h4>
+                            <p class="rec-message" data-message-en="Optimize heating schedule based on weather forecast" data-message-no="Optimaliser varmeplan basert på værmelding">Optimize heating schedule based on weather forecast</p>
+                            <div class="rec-savings">Spar 18,70 kr daglig / Save 18.70 kr daily</div>
+                            <div class="rec-impact">
+                                <span class="impact-label">Komfortpåvirkning / Comfort Impact:</span>
+                                <span class="impact-value low">Lav / Low</span>
+                            </div>
+                        </div>
+                        <button class="rec-action btn btn--primary btn--sm">Bruk / Apply</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section class="section" id="settings">
+                <div class="section-header">
+                    <h2 data-text="settings">Settings</h2>
+                </div>
+
+                <div class="settings-list">
+                    <div class="card setting-card">
+                        <div class="card__body">
+                            <h3>Brukerpreferanser / User Preferences</h3>
+                            <div class="form-group">
+                                <label class="form-label">Prioritetsmodus / Priority Mode</label>
+                                <select class="form-control" id="priorityMode">
+                                    <option value="comfort">Komfort først / Comfort First</option>
+                                    <option value="balanced" selected>Balansert / Balanced</option>
+                                    <option value="savings">Besparelser først / Savings First</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Standard komforttemperatur / Default Comfort Temperature</label>
+                                <input type="number" class="form-control" value="22" min="16" max="28">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <input type="checkbox" checked> Aktiver smarte varsler / Enable Smart Notifications
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card setting-card">
+                        <div class="card__body">
+                            <h3>Miljøpåvirkning / Environmental Impact</h3>
+                            <div class="env-stats">
+                                <div class="env-stat">
+                                    <span class="env-label">CO₂ spart denne måneden / CO₂ Saved This Month</span>
+                                    <span class="env-value">45,2 kg</span>
+                                </div>
+                                <div class="env-stat">
+                                    <span class="env-label">Ekvivalent trær / Trees Equivalent</span>
+                                    <span class="env-value">2,1 trær / trees</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button type="button" class="nav-item active" onclick="showSection('dashboard')">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label" data-text="dashboard">Oversikt</span>
+            </button>
+            <button type="button" class="nav-item" onclick="showSection('energy')">
+                <span class="nav-icon">⚡</span>
+                <span class="nav-label" data-text="energy_monitor">Energi</span>
+            </button>
+            <button type="button" class="nav-item" onclick="showSection('heating')">
+                <span class="nav-icon">🌡️</span>
+                <span class="nav-label" data-text="heating_control">Varme</span>
+            </button>
+            <button type="button" class="nav-item" onclick="showSection('recommendations')">
+                <span class="nav-icon">💡</span>
+                <span class="nav-label" data-text="recommendations">Tips</span>
+            </button>
+            <button type="button" class="nav-item" onclick="showSection('settings')">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label" data-text="settings">Innstillinger</span>
+            </button>
+        </nav>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
